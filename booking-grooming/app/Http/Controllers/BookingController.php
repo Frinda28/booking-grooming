@@ -141,7 +141,7 @@ class BookingController extends Controller
 
             return redirect()->route('bookings.index')->with('success', 'Data booking berhasil dihapus!');
         } catch (\Exception $e) {
-            Log::error('Gagal menghapus data booking.', [
+            Log::error('Gagal menghapus data.', [
                 'id' => $id,
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
