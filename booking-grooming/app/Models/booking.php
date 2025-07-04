@@ -16,6 +16,7 @@ class Booking extends Model
         'pemilik',
         'nomor_telepon',
         'tanggal_booking',
-        'jam_booking'
+        'jam_booking',
+        'images',
     ];
 }

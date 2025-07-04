@@ -4,6 +4,17 @@
 <div class="container">
     <h1>Edit Booking</h1>
 
+    {{-- Tampilkan error validasi jika ada --}}
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <form method="POST" action="{{ route('bookings.update', $booking->id) }}" enctype="multipart/form-data">
         @csrf
         @method('PUT')
@@ -15,7 +26,11 @@
 
         <div class="mb-3">
             <label>Jenis Hewan</label>
-            <input type="text" name="jenis_hewan" class="form-control" value="{{ $booking->jenis_hewan }}" required>
+            <select name="jenis_hewan" class="form-select" required>
+                <option value="">- Pilih -</option>
+                <option value="Kucing" {{ $booking->jenis_hewan == 'Kucing' ? 'selected' : '' }}>Kucing</option>
+                <option value="Anjing" {{ $booking->jenis_hewan == 'Anjing' ? 'selected' : '' }}>Anjing</option>
+            </select>
         </div>
 
         <div class="mb-3">
@@ -46,8 +61,11 @@
         <div class="mb-3">
             <label>Foto Hewan</label>
             <input type="file" name="images" class="form-control">
+            <input type="hidden" name="old_images" value="{{ $booking->images }}">
             @if($booking->images)
-                <img src="{{ asset('storage/' . $booking->images) }}" width="120" class="mt-2">
+                <div class="mt-2">
+                    <img src="{{ asset('storage/' . $booking->images) }}" width="120">
+                </div>
             @endif
         </div>
 

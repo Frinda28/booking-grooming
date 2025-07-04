@@ -1,12 +1,10 @@
 <?php
 
-// app/Http/Controllers/AuthController.php
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Admin;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -17,19 +15,57 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $admin = Admin::where('email', $request->email)->first();
+        try {
+            Log::info('Proses login dimulai.', [
+                'email' => $request->email
+            ]);
 
-        if ($admin && Hash::check($request->password, $admin->password)) {
-            Session::put('admin_id', $admin->id);
-            return redirect('/bookings'); // ✅ Langsung ke bookings
+            if (Auth::guard('admin')->attempt($request->only('email', 'password'))) {
+                Log::info('Login berhasil.', [
+                    'email' => $request->email
+                ]);
+
+                return redirect()->route('bookings.index');
+            }
+
+            Log::warning('Login gagal.', [
+                'email' => $request->email
+            ]);
+
+            return back()->withErrors([
+                'email' => 'Email atau password salah!',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error saat proses login.', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return back()->withErrors([
+                'email' => 'Terjadi kesalahan saat login.',
+            ]);
         }
-
-        return back()->withErrors(['email' => 'Email atau password salah!']);
     }
 
     public function logout()
     {
-        Session::forget('admin_id');
-        return redirect('/login');
+        try {
+            Log::info('Admin melakukan logout.', [
+                'email' => Auth::guard('admin')->user()->email ?? 'Tidak diketahui'
+            ]);
+
+            Auth::guard('admin')->logout();
+
+            return redirect()->route('login');
+        } catch (\Exception $e) {
+            Log::error('Error saat proses logout.', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return back()->withErrors([
+                'error' => 'Terjadi kesalahan saat logout.',
+            ]);
+        }
     }
 }

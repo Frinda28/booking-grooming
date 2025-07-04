@@ -23,4 +23,7 @@ Route::get('login', [AuthController::class, 'loginForm'])->name('login');
 Route::post('login', [AuthController::class, 'login'])->name('login.submit');
 Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/login', fn () => view('auth.login')) -> name('login');
-Route::resource('bookings', BookingController::class);
+Route::middleware('auth:admin')->group(function () {
+    Route::resource('bookings', BookingController::class);
+});
+
